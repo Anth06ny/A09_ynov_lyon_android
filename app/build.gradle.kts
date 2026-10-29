@@ -63,4 +63,8 @@ dependencies {
     implementation ("io.ktor:ktor-client-logging-jvm:3.4.2")  //log
 
     implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.12.+")
+
+    //Coil ImageLoader
+    implementation("io.coil-kt.coil3:coil-network-ktor3:3.2.0")
+    implementation("io.coil-kt.coil3:coil-compose:3.2.0")
 }
