@@ -2,6 +2,7 @@ package com.amonteiro.a09_ynov_lyon_android.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.amonteiro.a09_ynov_lyon_android.data.fake.WeatherFakeDataSource
 import com.amonteiro.a09_ynov_lyon_android.data.remote.WeatherApiDataSource
 import com.amonteiro.a09_ynov_lyon_android.domain.model.Weather
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +30,11 @@ class MainViewModel : ViewModel() {
     val dataList = MutableStateFlow(emptyList<Weather>())
     val runInProgress = MutableStateFlow(false)
     val errorMessage = MutableStateFlow("")
+
+    init {
+        println("Init de MainViewmodel")
+        dataList.value = WeatherFakeDataSource.loadFakeData()
+    }
 
     fun loadWeathers(cityName: String) {
 
