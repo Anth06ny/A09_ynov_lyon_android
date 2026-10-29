@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import com.amonteiro.a09_ynov_lyon_android.presentation.screens.SearchScreen
-import com.amonteiro.a09_ynov_lyon_android.presentation.ui.theme.A09_ynov_lyon_androidTheme
+import com.amonteiro.a09_ynov_lyon_android.presentation.ui.theme.AppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -17,7 +17,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            A09_ynov_lyon_androidTheme {
+            AppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     SearchScreen(
                         modifier = Modifier.padding(innerPadding)
