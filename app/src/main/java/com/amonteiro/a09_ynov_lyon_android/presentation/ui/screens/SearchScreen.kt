@@ -1,7 +1,8 @@
-package com.amonteiro.a09_ynov_lyon_android.presentation.screens
+package com.amonteiro.a09_ynov_lyon_android.presentation.ui.screens
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.content.res.Configuration.UI_MODE_TYPE_NORMAL
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,17 +23,18 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,6 +50,7 @@ import com.amonteiro.a09_ynov_lyon_android.R
 import com.amonteiro.a09_ynov_lyon_android.data.fake.WeatherFakeDataSource
 import com.amonteiro.a09_ynov_lyon_android.domain.model.Weather
 import com.amonteiro.a09_ynov_lyon_android.presentation.MainViewModel
+import com.amonteiro.a09_ynov_lyon_android.presentation.ui.MyError
 import com.amonteiro.a09_ynov_lyon_android.presentation.ui.theme.AppTheme
 
 @Preview(showBackground = true, showSystemUi = true)
@@ -65,7 +68,29 @@ fun SearchScreenPreview() {
             val fakelist = WeatherFakeDataSource.loadFakeData()
 
             SearchScreenContent(
-                modifier = Modifier.padding(innerPadding), list = fakelist
+                modifier = Modifier.padding(innerPadding),
+                list = fakelist,
+                runInProgress = true,
+                errorMessage = "Un erreur est survenue"
+            )
+        }
+    }
+}
+
+@Preview(
+    showBackground = true, showSystemUi = true,
+    uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL, locale = "fr"
+)
+@Composable
+fun SearchScreenNoDataPreview() {
+    AppTheme {
+        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+
+            SearchScreenContent(
+                modifier = Modifier.padding(innerPadding),
+                list = emptyList(),
+                runInProgress = false,
+                errorMessage = ""
             )
         }
     }
@@ -77,16 +102,26 @@ fun SearchScreen(
     mainViewModel: MainViewModel = viewModel()
 ) {
     val list = mainViewModel.dataList.collectAsStateWithLifecycle().value
+    val runInProgress = mainViewModel.runInProgress.collectAsStateWithLifecycle().value
+    val errorMessage = mainViewModel.errorMessage.collectAsStateWithLifecycle().value
 
-    LaunchedEffect(Unit) {
-        mainViewModel.loadWeathers("Nice")
-    }
-
-    SearchScreenContent(modifier = modifier, list = list)
+    SearchScreenContent(
+        modifier = modifier,
+        list = list,
+        onBtLoadClick = {mainViewModel.loadWeathers(it)},
+        runInProgress = runInProgress,
+        errorMessage = errorMessage
+    )
 }
 
 @Composable
-fun SearchScreenContent(modifier: Modifier = Modifier, list: List<Weather>) {
+fun SearchScreenContent(
+    modifier: Modifier = Modifier,
+    list: List<Weather>,
+    onBtLoadClick: (String) -> Unit = {},
+    runInProgress: Boolean,
+    errorMessage: String
+    ) {
 
     Column(
         modifier = modifier
@@ -94,18 +129,23 @@ fun SearchScreenContent(modifier: Modifier = Modifier, list: List<Weather>) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        val searchText: MutableState<String> = remember { mutableStateOf("") }
-        val filterList = list.filter { it.name.contains(searchText.value, true) }
+        val searchText: MutableState<String> = rememberSaveable { mutableStateOf("") }
 
         SearchBar(text = searchText.value, onValueChange = {searchText.value = it})
+
+        MyError(errorMessage = errorMessage)
+
+        AnimatedVisibility (runInProgress) {
+            CircularProgressIndicator()
+        }
 
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.weight(1f)
         ) {
-            items(filterList.size) {
+            items(list.size) {
                 PictureRowItem(
-                    data = filterList[it], modifier =
+                    data = list[it], modifier =
                         Modifier
                             .background(MaterialTheme.colorScheme.onTertiary)
                             .fillMaxWidth()
@@ -129,7 +169,7 @@ fun SearchScreenContent(modifier: Modifier = Modifier, list: List<Weather>) {
             }
 
             Button(
-                onClick = { /* Do something! */ },
+                onClick = { onBtLoadClick(searchText.value) },
                 contentPadding = ButtonDefaults.ButtonWithIconContentPadding
             ) {
                 Icon(

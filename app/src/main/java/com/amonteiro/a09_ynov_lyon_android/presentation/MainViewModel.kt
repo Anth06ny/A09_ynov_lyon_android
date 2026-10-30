@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 
 suspend fun main() {
@@ -30,6 +31,9 @@ class MainViewModel : ViewModel() {
     val runInProgress = MutableStateFlow(false)
     val errorMessage = MutableStateFlow("")
 
+    init {
+        loadWeathers("Nice")
+    }
 
     fun loadWeathers(cityName: String) {
 
@@ -45,11 +49,18 @@ class MainViewModel : ViewModel() {
             }
             catch (e: Exception) {
                 e.printStackTrace()
-                errorMessage.value = e.message ?: "Une erreur est survenue"
+                updateError(e.message ?: "Une erreur est survenue")
             }
             finally {
                 runInProgress.value = false
             }
+        }
+    }
+    private fun updateError(text:String){
+        errorMessage.value = text
+        viewModelScope.launch(Dispatchers.IO){
+            delay(3000.milliseconds)
+            errorMessage.value = ""
         }
     }
 }
