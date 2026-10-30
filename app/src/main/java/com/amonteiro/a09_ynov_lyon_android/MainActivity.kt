@@ -19,9 +19,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    SearchScreen(
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                        SearchScreen(
+                            modifier = Modifier.padding(innerPadding)
+                        )
                 }
             }
         }
