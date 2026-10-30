@@ -100,22 +100,22 @@ fun SearchScreenNoDataPreview() {
 @Composable
 fun SearchScreen(
     modifier: Modifier = Modifier,
-    mainViewModel: MainViewModel = viewModel()
+    mainViewModel: MainViewModel = viewModel(),
+    onPictureClick: (Weather) -> Unit
 ) {
     val list = mainViewModel.dataList.collectAsStateWithLifecycle().value
     val runInProgress = mainViewModel.runInProgress.collectAsStateWithLifecycle().value
     val errorMessage = mainViewModel.errorMessage.collectAsStateWithLifecycle().value
 
-    LaunchedEffect(Unit) {
-        mainViewModel.loadWeathers("Nice")
-    }
+
 
     SearchScreenContent(
         modifier = modifier,
         list = list,
         onBtLoadClick = {mainViewModel.loadWeathers(it)},
         runInProgress = runInProgress,
-        errorMessage = errorMessage
+        errorMessage = errorMessage,
+        onPictureClick = onPictureClick
     )
 }
 
@@ -125,7 +125,8 @@ fun SearchScreenContent(
     list: List<Weather>,
     onBtLoadClick: (String) -> Unit = {},
     runInProgress: Boolean,
-    errorMessage: String
+    errorMessage: String,
+    onPictureClick: (Weather) -> Unit = {}
     ) {
 
     Column(
@@ -153,7 +154,8 @@ fun SearchScreenContent(
                     data = list[it], modifier =
                         Modifier
                             .background(MaterialTheme.colorScheme.onTertiary)
-                            .fillMaxWidth()
+                            .fillMaxWidth(),
+                    onPictureClick = onPictureClick
                 )
             }
         }
@@ -222,7 +224,7 @@ fun SearchBar(modifier: Modifier = Modifier, text : String, onValueChange: (Stri
 }
 
 @Composable
-fun PictureRowItem(modifier: Modifier = Modifier, data: Weather) {
+fun PictureRowItem(modifier: Modifier = Modifier, data: Weather, onPictureClick: (Weather) -> Unit) {
 
     var expended by remember { mutableStateOf(false) }
 
@@ -247,6 +249,8 @@ fun PictureRowItem(modifier: Modifier = Modifier, data: Weather) {
             modifier = Modifier
                 .heightIn(max = 100.dp)
                 .widthIn(max = 100.dp)
+                .clickable{onPictureClick(data)}
+
         )
 
         Column(modifier = Modifier

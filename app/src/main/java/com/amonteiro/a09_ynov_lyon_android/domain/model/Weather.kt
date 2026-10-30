@@ -1,5 +1,8 @@
 package com.amonteiro.a09_ynov_lyon_android.domain.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Weather(
     var id: Int, //id d'un point météo
     var name: String,
